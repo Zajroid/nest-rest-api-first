@@ -3,36 +3,56 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
+  Redirect,
+  Req,
+  Res,
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
+import { Response, Request } from 'express';
+import { ProductsService } from './products.service';
+
 @Controller('products')
 export class ProductsController {
+  constructor(private readonly productsService: ProductsService) {}
+
+  //   @Get()
+  //   //   @Redirect('http://localhost:3000/redir', 301)
+  //   getAll(@Req() req: Request, @Res() res: Response): string {
+  //     res.status(201).end('Bye');
+  //     return 'getAll';
+  //   }
+
   @Get()
-  getAll(): string {
-    return 'getAll';
+  getAll() {
+    return this.productsService.getAll();
   }
 
   @Get(':id')
-  getOne(@Param('id') id: string): string {
-    return `getOne ${id}`;
+  getOne(@Param('id') id: string) {
+    return this.productsService.getById(id);
   }
 
   @Post()
-  create(@Body() createProductDto: CreateProductDto): string {
-    return `Title: ${createProductDto.title} | Price: ${createProductDto.price}`;
+  @HttpCode(HttpStatus.CREATED)
+  @Header('Powered-By', 'Zajroit')
+  create(@Body() createProductDto: CreateProductDto) {
+    return this.productsService.create(createProductDto);
   }
 
-  @Delete('id')
+  @Delete(':id')
   remove(@Param('id') id: string): string {
     return `Remove id: ${id}`;
   }
 
-  @Put('id')
+  @Put(':id')
   update(
     @Body() updateProductDto: UpdateProductDto,
     @Param('id') id: string,
